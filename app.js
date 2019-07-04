@@ -39,8 +39,5 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
-<<<<<<< HEAD
-//ㅇㅁㄴㅇㄹ
-=======
-//나는 류동현
->>>>>>> ㅎㅇ
+
+//ㅇㅁㄴasdfasd
