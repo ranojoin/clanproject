@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <title>RainClan</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+<!-- 가입 폼 시작 -->
+<div class="container">
+    <h1>RainClan 승부</h1>
+    <br>
+    <div class="form-group">
+        <label for="WIN_ID">승자 ID:</label>
+        <input type="text" class="form-control" id="WIN_ID">
+        <form name = "form1">
+            <p>종족</p><select id="WR" name="Win_Race" onchange="WinRace()">
+            <option value="X">종족선택</option>
+            <option value="Terran">테란</option>
+            <option value="Zerg">저그</option>
+            <option value="Protoss">프로토스</option>
+        </select>
+        </form>
+    </div>
+    <!--승자 종족 선택 박스추가-->
+    <br>
+
+    <div class="form-group">
+        <label for="LOS_ID">패자 ID:</label>
+        <input type="text" class="form-control" id="LOS_ID">
+        <form name = "form2">
+            <p>종족</p><select id="LR" name="Lose_Race" onchange = "LoseRace()">
+            <option value="X">종족선택</option>
+            <option value="Terran">테란</option>
+            <option value="Zerg">저그</option>
+            <option value="Protoss">프로토스</option>
+        </select>
+        </form>
+    </div>
+    <br>
+
+    <div class="form-group">
+        <form name = "form3">
+            <p>경기 맵</p><select id="MN" name="Match_Map" onchange="MatchMap()">
+            <option value="X">경기 맵</option>
+            <option value="Python">파이썬</option>
+            <option value="CIrcuit">써킷브레이커</option>
+            <option value="Fighting">투혼</option>
+        </select>
+        </form>
+    </div>
+    <!--경기 맵 박스추가-->
+    <button type="button" class="btn btn-default join">제출</button>
+
+</div>
+<!-- 가입 폼 끝 -->
+
+<!--스크립트 부분. 자신의 스크립트 코드로 변경하세요! -->
+<script src="https://www.gstatic.com/firebasejs/4.10.1/firebase.js"></script>
+<script>
+    var W_R;
+    var L_R;
+    var M_N;
+    function WinRace(){
+        // select element에서 선택된 option의 value가 저장된다.
+        W_R = document.getElementById("WR").options[document.getElementById("WR").selectedIndex].value;
+        // select element에서 선택된 option의 text가 저장된다.
+        // var selectText = langSelect.options[langSelect.selectedIndex].text;
+    }
+
+    function LoseRace(){
+        // select element에서 선택된 option의 value가 저장된다.
+        L_R = document.getElementById("LR").options[document.getElementById("LR").selectedIndex].value;
+        // select element에서 선택된 option의 text가 저장된다.
+        // var selectText = langSelect.options[langSelect.selectedIndex].text;
+    }
+
+    function MatchMap(){
+        // select element에서 선택된 option의 value가 저장된다.
+        M_N = document.getElementById("MN").options[document.getElementById("MN").selectedIndex].value;
+        // select element에서 선택된 option의 text가 저장된다.
+        // var selectText = langSelect.options[langSelect.selectedIndex].text;
+    }
+
+    // var firebaseEmailAuth; //파이어베이스 email 인증 모듈 전역변수
+    var firebaseDatabase; //파이어베이스 db 모듈 전역변수
+    var userInfo; //가입한 유저의 정보. object 타입
+    //파이어 베이스 초기화 코드
+    var config = {
+        apiKey: "AIzaSyAPzpvnRL84FbAcDMkpwxJlSUA50WA0W_s",
+        authDomain: "clanproject.firebaseapp.com",
+        databaseURL: "https://clanproject.firebaseio.com",
+        projectId: "clanproject",
+        storageBucket: "",
+        messagingSenderId: "960960953447",
+        appId: "1:960960953447:web:46e53254a27a8404"
+    };
+    firebase.initializeApp(config);
+
+    // firebaseEmailAuth = firebase.auth();
+    firebaseDatabase = firebase.database();
+
+    //제이쿼리
+    $(document).ready(function(){
+        //제출버튼 눌렀을 때 작동하는 함수
+        $(document).on('click','.join',function(){
+            var win_user = $('#WIN_ID').val();
+            var los_user = $('#LOS_ID').val();
+            var W_R = document.getElementById("WR").options[document.getElementById("WR").selectedIndex].value;
+            var L_R = document.getElementById("LR").options[document.getElementById("LR").selectedIndex].value;
+            var M_N = document.getElementById("MN").options[document.getElementById("MN").selectedIndex].value;
+
+//가입 성공했을 때 호출 되는 함수 - 위의 firebase의 인증 모듈과 다른 database 모듈임을 확인하자.
+            var Win_info = firebaseDatabase.ref("win_info/"); //저장될 곳을 users라는 부모 키를 레퍼런스로 지정.
+            var Lose_info = firebaseDatabase.ref("lose_info/"); //저장될 곳을 users라는 부모 키를 레퍼런스로 지정.
+            //저장 형식
+            var Win = {
+                Name: win_user,
+                Race: W_R,
+                map: M_N,
+            };
+            var Lose = {
+                Name: los_user,
+                Race: L_R,
+                map: M_N,
+            };
+
+            Win_info.push(Win); // 고유한 자식 키가 하나 생셩이 되면서 json 삽입
+            Lose_info.push(Lose); // 고유한 자식 키가 하나 생셩이 되면서 json 삽입
+            alert("제출완료");
+            var array = new Array("이름","종족","맵");
+            var i=0;
+            document.write("<h>승자정보</h><br>");
+            Win_info.on('child_added',function(data){
+                //alert(data.val());
+                document.write(array[i] + " " + data.val() + "<br>");
+                i++;
+            });
+            var j=0;
+            document.write("<br><h>패자정보</h><br>");
+            Lose_info.on('child_added',function(data){
+                //  alert(data.val());
+                document.write(array[j] + " " + data.val() + "<br>");
+                j++;
+            });
+
+            //메인 페이지로 이동시키고 세션 저장시키기
+            // window.location.href = "index2.html"
+        });
+    });
+</script>
+</body>
+</html>
